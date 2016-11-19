@@ -15,10 +15,6 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Constants
-        buildConfigField("String", "API_BASE_URL", '"https://api.themoviedb.org/3"')
-        buildConfigField("String", "API_PATH_MOVIES_POPULAR", '"/movie/popular"')
-        buildConfigField("String", "API_PATH_MOVIES_TOP_RATED", '"movie/top_rated"')
-        buildConfigField("String", "API_PARAM_API_KEY", '"api_key"')
         buildConfigField("String", "IMAGES_BASE_URL", '"http://image.tmdb.org/t/p"')
         buildConfigField("String", "IMAGES_PATH_W185", '"/w185/"')
     }
