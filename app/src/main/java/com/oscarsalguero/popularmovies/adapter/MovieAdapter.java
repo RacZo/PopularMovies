@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.oscarsalguero.popularmovies.BuildConfig;
 import com.oscarsalguero.popularmovies.R;
 import com.oscarsalguero.popularmovies.model.Movie;
 import com.squareup.picasso.Picasso;
@@ -28,7 +27,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     final List<Movie> mItems;
 
-    private static final String IMAGES_URL = BuildConfig.IMAGES_BASE_URL + BuildConfig.IMAGES_PATH_W185;
+    public static final String IMAGES_BASE_URL = "http://image.tmdb.org/t/p";
+    // public static final String IMAGES_PATH_W185 = "/w185/";
+    // public static final String IMAGES_PATH_W342 = "/w342/";
+    public static final String IMAGES_PATH_W500 = "/w500/";
+
+    private static final String IMAGES_URL = IMAGES_BASE_URL + IMAGES_PATH_W500;
 
     public MovieAdapter(Context context, List<Movie> list) {
         this.mContext = context;
@@ -38,7 +42,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public MovieAdapter.MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         mContext = parent.getContext();
-        final View view = LayoutInflater.from(mContext).inflate(R.layout.list_item_movie, parent, false);
+        final View view = LayoutInflater.from(mContext).inflate(R.layout.list_item_movie, null, false);
         return new MovieViewHolder(view);
     }
 

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private static final String LOG_TAG = MainActivity.class.getName();
 
+    private CoordinatorLayout mCoordinatorLayout;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
     private MovieAdapter mAdapter;
@@ -66,16 +69,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
-        mAdapter = new MovieAdapter(MainActivity.this, mMovies);
-        mRecyclerView.setAdapter(mAdapter);
-
         mGridLayoutManager = new GridLayoutManager(this, 2);
         mGridLayoutManager.setOrientation(GridLayoutManager.VERTICAL);
+        mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mGridLayoutManager);
+
+        mAdapter = new MovieAdapter(MainActivity.this, mMovies);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
@@ -217,9 +223,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "Error ", e);
+                    Snackbar.make(mCoordinatorLayout, e.getMessage(), Snackbar.LENGTH_SHORT).show();
                     return null;
                 } catch (Exception e) {
                     Log.e(LOG_TAG, "Error ", e);
+                    Snackbar.make(mCoordinatorLayout, e.getMessage(), Snackbar.LENGTH_SHORT).show();
                     return null;
                 } finally {
                     if (urlConnection != null) {
@@ -266,6 +274,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     Log.e(LOG_TAG, "Error parsing response", e);
                 }
 
+            } else {
+                Snackbar.make(mCoordinatorLayout, getString(R.string.error_loading_movies), Snackbar.LENGTH_SHORT).show();
             }
 
         }
