@@ -13,4 +13,21 @@
     <dimen name="card_elevation">0dp</dimen>
     <dimen name="card_content_padding">0dp</dimen>
 
+    <dimen name="movie_title_height">140dp</dimen>
+    <dimen name="movie_title_margin_horizontal">16dp</dimen>
+    <dimen name="movie_title_margin_vertical">32dp</dimen>
+    <dimen name="movie_title_text">36sp</dimen>
+
+    <dimen name="movie_release_text">20sp</dimen>
+    <dimen name="movie_vote_text">16sp</dimen>
+
+    <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="text_margin">16dp</dimen>
+
+    <dimen name="movie_poster_width">120dp</dimen>
+    <dimen name="movie_poster_height">180dp</dimen>
+
+    <dimen name="movie_data_margin">8dp</dimen>
+
 </resources>

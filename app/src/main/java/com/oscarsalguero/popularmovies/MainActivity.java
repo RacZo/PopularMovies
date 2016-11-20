@@ -1,3 +1,14 @@
+/***
+ * Copyright (c) 2016 Oscar Salguero www.oscarsalguero.com
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.oscarsalguero.popularmovies;
 
 import android.content.Context;
@@ -13,6 +24,7 @@ import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,8 +36,8 @@ import android.widget.SpinnerAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.oscarsalguero.popularmovies.adapter.MovieAdapter;
+import com.oscarsalguero.popularmovies.bean.MoviesResponse;
 import com.oscarsalguero.popularmovies.model.Movie;
-import com.oscarsalguero.popularmovies.model.MoviesResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,13 +64,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private GridLayoutManager mGridLayoutManager;
     private List<Movie> mMovies = new ArrayList<>();
 
-    private static final String API_SCHEME = "https";
-    private static final String API_BASE_URL = "api.themoviedb.org";
-    private static final String API_PATH_VERSION = "3";
-    private static final String API_PATH_MOVIE = "movie";
     private static final String API_PATH_MOVIES_POPULAR = "popular";
     private static final String API_PATH_MOVIES_TOP_RATED = "top_rated";
-    private static final String API_PARAM_API_KEY = "api_key";
 
     private String mSortOrder = API_PATH_MOVIES_POPULAR;
 
@@ -72,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
@@ -82,33 +90,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         mAdapter = new MovieAdapter(MainActivity.this, mMovies);
         mRecyclerView.setAdapter(mAdapter);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        //getMovies(getSortOrder());
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        try {
-            Context supportActionBarThemedContext = getSupportActionBar().getThemedContext();
-            MenuItem menuItem = menu.findItem(R.id.action_sort);
-            SpinnerAdapter spinnerAdapter = ArrayAdapter.createFromResource(
-                    supportActionBarThemedContext,
-                    R.array.sort_options,
-                    R.layout.spinner_dropdown_item);
-            AppCompatSpinner reportTypeSpinner = new AppCompatSpinner(supportActionBarThemedContext);
-            reportTypeSpinner.setAdapter(spinnerAdapter);
-            reportTypeSpinner.setOnItemSelectedListener(onItemSelectedListener);
-            MenuItemCompat.setActionView(menuItem, reportTypeSpinner);
-        } catch (Exception e) {
-            Log.d(LOG_TAG, "An error has occurred creating sort order dropdown menu in action bar", e);
-        }
-        return true;
     }
 
     private AdapterView.OnItemSelectedListener onItemSelectedListener = new AdapterView.OnItemSelectedListener() {
@@ -134,7 +115,29 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         public void onNothingSelected(AdapterView<?> parent) {
             Log.d(LOG_TAG, "Nothing selected");
         }
+
     };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        try {
+            Context supportActionBarThemedContext = getSupportActionBar().getThemedContext();
+            MenuItem menuItem = menu.findItem(R.id.action_sort);
+            SpinnerAdapter spinnerAdapter = ArrayAdapter.createFromResource(
+                    supportActionBarThemedContext,
+                    R.array.sort_options,
+                    R.layout.spinner_dropdown_item);
+            AppCompatSpinner sortOptionsSpinner = new AppCompatSpinner(supportActionBarThemedContext);
+            sortOptionsSpinner.setAdapter(spinnerAdapter);
+            sortOptionsSpinner.setOnItemSelectedListener(onItemSelectedListener);
+            MenuItemCompat.setActionView(menuItem, sortOptionsSpinner);
+        } catch (Exception e) {
+            Log.d(LOG_TAG, "An error has occurred creating sort order dropdown menu in action bar", e);
+        }
+        return true;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -151,23 +154,38 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Gets the sort order
+     * @return a {@link String} with the sort order
+     */
     public String getSortOrder() {
         return mSortOrder;
     }
 
+    /**
+     * Sets the sort order
+     * @param sortOrder a {@link String} with the sort order
+     */
     public void setSortPath(String sortOrder) {
         this.mSortOrder = sortOrder;
     }
 
+    /**
+     * Gets the movies
+     */
     private void getMovies() {
         new FetchMoviesTask().execute(getSortOrder());
     }
 
     @Override
     public void onRefresh() {
+        Log.d(LOG_TAG, "Will refresh...");
         getMovies();
     }
 
+    /**
+     * Async task to fetch movie data from API
+     */
     private class FetchMoviesTask extends AsyncTask<String, Void, String> {
 
         private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
@@ -180,18 +198,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
 
             String apiPathSortOrder = params[0];
-
+            String apiKey = BuildConfig.THE_MOVIE_DB_API_KEY;
+            if (TextUtils.isEmpty(apiKey)) {
+                Snackbar.make(mCoordinatorLayout, "API Key Not Defined. Please add it to your ~/.gradle/gradle.properties files as 'TheMovieDBAPIKey'.", Snackbar.LENGTH_SHORT).show();
+            }
             try {
 
                 Uri.Builder uriBuilder = new Uri.Builder();
-                uriBuilder.scheme(API_SCHEME)
-                        .authority(API_BASE_URL)
-                        .appendPath(API_PATH_VERSION)
-                        .appendPath(API_PATH_MOVIE)
+                uriBuilder.scheme(Constants.API_SCHEME)
+                        .authority(Constants.API_BASE_URL)
+                        .appendPath(Constants.API_PATH_VERSION)
+                        .appendPath(Constants.API_PATH_MOVIE)
                         .appendPath(apiPathSortOrder)
-                        .appendQueryParameter(API_PARAM_API_KEY, BuildConfig.THE_MOVIE_DB_API_KEY);
+                        .appendQueryParameter(Constants.API_PARAM_API_KEY, apiKey);
 
-                Log.v(LOG_TAG, "Hitting URL: " + uriBuilder.build().toString());
+                Log.d(LOG_TAG, "Hitting URL: " + uriBuilder.build().toString());
 
                 HttpURLConnection urlConnection = null;
                 BufferedReader reader = null;
@@ -201,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
                     URL url = new URL(uriBuilder.toString());
                     urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestMethod("GET");
+                    urlConnection.setRequestMethod(Constants.METHOD_GET);
                     urlConnection.connect();
 
                     InputStream inputStream = urlConnection.getInputStream();
@@ -222,11 +243,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     jsonResponseString = buffer.toString();
 
                 } catch (IOException e) {
-                    Log.e(LOG_TAG, "Error ", e);
+                    Log.e(LOG_TAG, "Error", e);
                     Snackbar.make(mCoordinatorLayout, e.getMessage(), Snackbar.LENGTH_SHORT).show();
                     return null;
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, "Error ", e);
+                    Log.e(LOG_TAG, "Error", e);
                     Snackbar.make(mCoordinatorLayout, e.getMessage(), Snackbar.LENGTH_SHORT).show();
                     return null;
                 } finally {
@@ -252,33 +273,42 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         @Override
         protected void onPostExecute(String jsonResponseString) {
 
-            Log.d(LOG_TAG, "JSON response: " + jsonResponseString);
+            Log.v(LOG_TAG, "JSON response: " + jsonResponseString);
 
             if (jsonResponseString != null) {
-
                 try {
                     Gson gson = new GsonBuilder().create();
+                    // Using third party library Gson to parse movies from JSON to a Java object
                     MoviesResponse moviesResponse = gson.fromJson(jsonResponseString, MoviesResponse.class);
-                    if (moviesResponse.getResults() != null) {
-
+                    if (moviesResponse.getResults() != null && moviesResponse.getResults().size() > 0) {
                         mMovies.clear();
                         mMovies.addAll(moviesResponse.getResults());
-
                         mAdapter.notifyDataSetChanged();
-
-                        if (mSwipeRefreshLayout.isRefreshing()) {
-                            mSwipeRefreshLayout.setRefreshing(false);
-                        }
+                    } else {
+                        Log.e(LOG_TAG, "Movie results is null");
+                        Snackbar.make(mCoordinatorLayout, getString(R.string.error_no_results), Snackbar.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, "Error parsing response", e);
+                    String errorMessage = "Error parsing JSON response";
+                    Log.e(LOG_TAG, errorMessage, e);
+                    Snackbar.make(mCoordinatorLayout, errorMessage, Snackbar.LENGTH_SHORT).show();
                 }
-
             } else {
                 Snackbar.make(mCoordinatorLayout, getString(R.string.error_loading_movies), Snackbar.LENGTH_SHORT).show();
             }
 
+            // Stopping swipe refresh layout
+            if (mSwipeRefreshLayout.isRefreshing()) {
+                mSwipeRefreshLayout.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mSwipeRefreshLayout.setRefreshing(false);
+                        Log.d(LOG_TAG, "Stopped refreshing");
+                    }
+                });
+            }
         }
+
     }
 
 }
