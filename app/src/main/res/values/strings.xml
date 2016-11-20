@@ -3,7 +3,6 @@
     <string name="app_name">Popular Movies</string>
 
     <string name="action_settings">Settings</string>
-
     <string name="action_favorite">Mark as Favorite</string>
 
     <string name="error_loading_movies">Error Loading Movies</string>
@@ -11,12 +10,8 @@
 
     <string name="title_activity_movie_detail">Movie Detail</string>
 
-    <string name="label_duration" formatted="false">%s min</string>
-
-    <string name="label_vote" formatted="false">%s/%s</string>
-
+    <string name="label_vote" formatted="false">%s / %s</string>
     <string name="label_trailers">Trailers:</string>
-
     <string name="label_trailer" formatted="false">Trailers %s</string>
 
 
