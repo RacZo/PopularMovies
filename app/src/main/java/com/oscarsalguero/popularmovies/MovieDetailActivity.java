@@ -46,6 +46,9 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private Movie mMovie;
 
+    private static final String DATE_FORMAT_API_RELEASE_DATE = "yyyy-MM-dd";
+    private static final String DATE_FORMAT_DISPLAY_RELEASE_YEAR = "yyyy";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,15 +87,15 @@ public class MovieDetailActivity extends AppCompatActivity {
                     .into(mImageViewPoster);
         }
         mTextViewTitle.setText(movie.getTitle());
-        SimpleDateFormat releaseDateFormat = new SimpleDateFormat("YYYY-MM-DD", Locale.US);
-        SimpleDateFormat releaseDateDisplatFormat = new SimpleDateFormat("YYYY", Locale.US);
-        Date releaseDate = null;
         try {
-            releaseDate = releaseDateFormat.parse(movie.getReleaseDate());
+            SimpleDateFormat releaseDateFormat = new SimpleDateFormat(DATE_FORMAT_API_RELEASE_DATE, Locale.US);
+            SimpleDateFormat releaseDateDisplayFormat = new SimpleDateFormat(DATE_FORMAT_DISPLAY_RELEASE_YEAR, Locale.US);
+            Date releaseDate = releaseDateFormat.parse(movie.getReleaseDate());
+            mTextViewReleaseDate.setText(releaseDateDisplayFormat.format(releaseDate));
         } catch (ParseException e) {
+            mTextViewReleaseDate.setText(movie.getReleaseDate());
             Log.e(LOG_TAG, "Could not parse release date", e);
         }
-        mTextViewReleaseDate.setText(releaseDateDisplatFormat.format(releaseDate));
         mTextViewVote.setText(getString(R.string.label_vote, String.valueOf(Math.round(movie.getVoteAverage())), String.valueOf(movie.getVoteCount())));
         mTextViewOverview.setText(movie.getOverview());
     }
