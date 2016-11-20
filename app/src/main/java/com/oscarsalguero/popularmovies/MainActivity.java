@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                         .appendPath(apiPathSortOrder)
                         .appendQueryParameter(Constants.API_PARAM_API_KEY, apiKey);
 
-                Log.d(LOG_TAG, "Hitting URL: " + uriBuilder.build().toString());
+                Log.v(LOG_TAG, "Hitting URL: " + uriBuilder.build().toString());
 
                 HttpURLConnection urlConnection = null;
                 BufferedReader reader = null;
