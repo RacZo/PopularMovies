@@ -69,29 +69,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private String mSortOrder = API_PATH_MOVIES_POPULAR;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-
-        mGridLayoutManager = new GridLayoutManager(this, 2);
-        mGridLayoutManager.setOrientation(GridLayoutManager.VERTICAL);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(mGridLayoutManager);
-
-        mAdapter = new MovieAdapter(MainActivity.this, mMovies);
-        mRecyclerView.setAdapter(mAdapter);
-    }
-
     private AdapterView.OnItemSelectedListener onItemSelectedListener = new AdapterView.OnItemSelectedListener() {
 
         @Override
@@ -117,6 +94,60 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
 
     };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d(LOG_TAG, "onCreate");
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+
+        mGridLayoutManager = new GridLayoutManager(this, 2);
+        mGridLayoutManager.setOrientation(GridLayoutManager.VERTICAL);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(mGridLayoutManager);
+
+        mAdapter = new MovieAdapter(MainActivity.this, mMovies);
+        mRecyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, "onPause");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, "onResume");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(LOG_TAG, "onStart");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(LOG_TAG, "onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG_TAG, "onDestroy");
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -156,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     /**
      * Gets the sort order
+     *
      * @return a {@link String} with the sort order
      */
     public String getSortOrder() {
@@ -164,6 +196,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     /**
      * Sets the sort order
+     *
      * @param sortOrder a {@link String} with the sort order
      */
     public void setSortPath(String sortOrder) {
